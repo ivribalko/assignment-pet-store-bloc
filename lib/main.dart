@@ -32,8 +32,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   static final Openapi _openApi = Openapi();
   final PetApi _petApi = _openApi.getPetApi();
-  int _id;
-  Pet _pet;
+  final List<Pet> _pets = [];
 
   @override
   Widget build(BuildContext context) {
@@ -41,31 +40,24 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              _pet.toString(),
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+      body: ListView(
+        children: <Widget>[
+          ..._pets.map((e) => Card(child: Text('$e'))),
+        ],
       ),
       floatingActionButton: Row(
         children: <Widget>[
           Spacer(),
           FloatingActionButton(
-            onPressed: () => _petApi
-                .addPet((PetBuilder()..status = 'available').build())
-                .then((value) => _id = value.data['id']),
+            onPressed: () =>
+                _petApi.addPet((PetBuilder()..status = 'available').build()),
             child: Icon(Icons.add),
           ),
           FloatingActionButton(
             onPressed: () => _petApi
-                .getPetById(_id)
-                .then((x) => _pet = x.data)
-                .then((_) => setState(() {})),
+                .findPetsByStatus('available,pending')
+                .then((value) => _pets.addAll(value.data.sublist(0, 10)))
+                .then((value) => setState(() {})),
             child: Icon(Icons.cloud_download),
           ),
         ],
