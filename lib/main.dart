@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:openapi/api.dart';
 import 'package:openapi/api/pet_api.dart';
 import 'package:openapi/model/pet.dart';
+import 'package:wakelock/wakelock.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Wakelock.enable();
   runApp(MyApp());
 }
 

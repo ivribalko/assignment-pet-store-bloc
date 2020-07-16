@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   openapi:
     path: api
+  wakelock: ^0.1.4+1
 dev_dependencies:
   flutter_test:
     sdk: flutter
