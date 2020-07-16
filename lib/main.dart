@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:openapi/api.dart';
+import 'package:openapi/api/pet_api.dart';
+import 'package:openapi/model/pet.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,13 +27,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  static final Openapi _openApi = Openapi();
+  final PetApi _petApi = _openApi.getPetApi();
+  int _id;
+  Pet _pet;
 
   @override
   Widget build(BuildContext context) {
@@ -43,19 +43,29 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
+              _pet.toString(),
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+      floatingActionButton: Row(
+        children: <Widget>[
+          Spacer(),
+          FloatingActionButton(
+            onPressed: () => _petApi
+                .addPet((PetBuilder()..status = 'available').build())
+                .then((value) => _id = value.data['id']),
+            child: Icon(Icons.add),
+          ),
+          FloatingActionButton(
+            onPressed: () => _petApi
+                .getPetById(_id)
+                .then((x) => _pet = x.data)
+                .then((_) => setState(() {})),
+            child: Icon(Icons.cloud_download),
+          ),
+        ],
       ),
     );
   }
