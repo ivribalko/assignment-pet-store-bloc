@@ -79,7 +79,7 @@ class StoreApi {
             cancelToken: cancelToken,
             ).then((response) {
 
-        var serializer = _serializers.serializerForType(Map<String, int>);
+        var serializer = _serializers.serializerForType(Map);
         var data = _serializers.deserializeWith<Map<String, int>>(serializer, response.data is String ? jsonDecode(response.data) : response.data);
 
             return Response<Map<String, int>>(
