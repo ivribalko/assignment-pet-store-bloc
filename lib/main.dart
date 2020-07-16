@@ -17,7 +17,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider<ListBloc<Pet, PetFilter>>(
+            create: (BuildContext context) {
+              return ListBloc<Pet, PetFilter>(
+                PetDataRepository(),
+              );
+            },
+          ),
+        ],
+        child: MyHomePage(title: 'Flutter Demo Home Page'),
+      ),
     );
   }
 }
@@ -32,18 +43,55 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final bloc = ListBloc<Pet, PetFilter>(PetDataRepository());
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: BlocBuilder(
-        bloc: bloc,
-        builder: (BuildContext context, state) {},
+      body: BlocConsumer(
+        bloc: context.bloc<ListBloc<Pet, PetFilter>>(),
+        listener: (BuildContext context, state) {
+          if (state is DataError) {
+            _showError(context, state);
+          }
+        },
+        builder: (_, state) {
+          if (state is DataEmpty) {
+            return _buildEmpty();
+          } else if (state is DataLoading) {
+            return _buildLoading();
+          } else if (state is DataLoaded) {
+            return _buildLoaded(state.data);
+          } else if (state is DataError) {
+            return _buildEmpty();
+          } else {
+            throw UnimplementedError();
+          }
+        },
       ),
+    );
+  }
+
+  void _showError(BuildContext context, DataError state) {
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(state.error),
+      ),
+    );
+  }
+
+  Widget _buildEmpty() {
+    return Center(
+      child: Text(
+        'No pets matching filter',
+      ),
+    );
+  }
+
+  Widget _buildLoading() {
+    return Center(
+      child: CircularProgressIndicator(),
     );
   }
 
