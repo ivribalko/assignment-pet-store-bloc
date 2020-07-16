@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:list_bloc/list_bloc.dart';
 import 'package:openapi/model/pet.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -30,8 +32,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Pet> _pets = [];
-  final PetDataRepository _petRepository = PetDataRepository();
+  final bloc = ListBloc<Pet, PetFilter>(PetDataRepository());
 
   @override
   Widget build(BuildContext context) {
@@ -39,23 +40,18 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView(
-        children: <Widget>[
-          ..._pets.map((e) => Card(child: Text('$e'))),
-        ],
+      body: BlocBuilder(
+        bloc: bloc,
+        builder: (BuildContext context, state) {},
       ),
-      floatingActionButton: Row(
-        children: <Widget>[
-          Spacer(),
-          FloatingActionButton(
-            onPressed: () => _petRepository
-                .load(filter: PetFilter(Status.pending))
-                .then(_pets.addAll)
-                .then((value) => setState(() {})),
-            child: Icon(Icons.cloud_download),
-          ),
-        ],
-      ),
+    );
+  }
+
+  Widget _buildLoaded(List<Pet> pets) {
+    return ListView(
+      children: <Widget>[
+        ...pets.map((e) => Card(child: Text('$e'))),
+      ],
     );
   }
 }
