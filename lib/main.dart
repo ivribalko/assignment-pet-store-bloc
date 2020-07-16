@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:openapi/api.dart';
-import 'package:openapi/api/pet_api.dart';
 import 'package:openapi/model/pet.dart';
 import 'package:wakelock/wakelock.dart';
+
+import 'src/pet_data_repository.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,9 +30,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  static final Openapi _openApi = Openapi();
-  final PetApi _petApi = _openApi.getPetApi();
   final List<Pet> _pets = [];
+  final PetDataRepository _petRepository = PetDataRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Spacer(),
           FloatingActionButton(
-            onPressed: () =>
-                _petApi.addPet((PetBuilder()..status = 'available').build()),
-            child: Icon(Icons.add),
-          ),
-          FloatingActionButton(
-            onPressed: () => _petApi
-                .findPetsByStatus('available,pending')
-                .then((value) => _pets.addAll(value.data.sublist(0, 10)))
+            onPressed: () => _petRepository
+                .load(filter: PetFilter(Status.pending))
+                .then(_pets.addAll)
                 .then((value) => setState(() {})),
             child: Icon(Icons.cloud_download),
           ),
