@@ -9,6 +9,7 @@ dependencies:
   dio: ^3.0.9
   flutter:
     sdk: flutter
+  list_bloc: ^0.0.5
   openapi:
     path: api
   wakelock: ^0.1.4+1
