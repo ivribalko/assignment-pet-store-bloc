@@ -97,41 +97,44 @@ class PagingSwitcher extends StatefulWidget {
 }
 
 class _PagingSwitcherState extends State<PagingSwitcher> {
-  int _page = -1;
-
   @override
   void initState() {
     super.initState();
-    _loadNext();
+    _load(0);
   }
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<PetPageBloc, DataState<ListPage<Pet>, int>>(
+      bloc: context.bloc<PetPageBloc>(),
+      builder: (_, state) {
+        if (state is DataLoaded) {
+          return _buildPaging(state.data.number, state.data.pages);
+        } else {
+          return _buildPaging(0, 0);
+        }
+      },
+    );
+  }
+
+  Row _buildPaging(int number, int pages) {
     return Row(
       children: <Widget>[
         Spacer(),
         IconButton(
           icon: Icon(Icons.arrow_left),
-          onPressed: _page > 0 ? _loadBack : null,
+          onPressed: number > 0 ? () => _load(--number) : null,
         ),
+        Text('Click here'),
         IconButton(
           icon: Icon(Icons.arrow_right),
-          onPressed: _loadNext,
+          onPressed: number < pages - 2 ? () => _load(++number) : null,
         )
       ],
     );
   }
 
-  void _loadBack() => _load(--_page);
-
-  void _loadNext() => _load(++_page);
-
-  void _load(int page) {
-    context.bloc<PetPageBloc>().load(page);
-    setState(() {
-      _page = page;
-    });
-  }
+  void _load(int page) => context.bloc<PetPageBloc>().load(page);
 }
 
 void _showError(BuildContext context, DataError state) {
