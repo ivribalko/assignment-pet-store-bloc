@@ -82,44 +82,32 @@ class PetListView extends StatelessWidget {
       },
     );
   }
-
-  void _showError(BuildContext context, DataError state) {
-    Scaffold.of(context).showSnackBar(
-      SnackBar(
-        content: Text(state.error),
-      ),
-    );
-  }
-
-  Widget _buildEmpty() {
-    return Center(
-      child: Text(
-        'No pets matching filter',
-      ),
-    );
-  }
-
-  Widget _buildLoading() {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-  }
-
-  Widget _buildLoaded(List<Pet> pets) {
-    return ListView(
-      children: [
-        ...pets.map((e) => Card(child: Text('$e'))),
-      ],
-    );
-  }
 }
 
 /// View for PaginatedRepository.
 class PetPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('TODO'),
+    return BlocConsumer(
+      bloc: context.bloc<PetPageBloc>(),
+      listener: (context, state) {
+        if (state is DataError) {
+          _showError(context, state);
+        }
+      },
+      builder: (_, state) {
+        if (state is DataEmpty) {
+          return _buildEmpty();
+        } else if (state is DataLoading) {
+          return _buildLoading();
+        } else if (state is DataLoaded) {
+          return _buildLoaded(state.data.data);
+        } else if (state is DataError) {
+          return _buildEmpty();
+        } else {
+          throw UnimplementedError();
+        }
+      },
     );
   }
 }
@@ -143,9 +131,75 @@ class StatusDropdown extends StatelessWidget {
   }
 }
 
-class PagingSwitcher extends StatelessWidget {
+class PagingSwitcher extends StatefulWidget {
+  @override
+  _PagingSwitcherState createState() => _PagingSwitcherState();
+}
+
+class _PagingSwitcherState extends State<PagingSwitcher> {
+  int _page = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNext();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Row(
+      children: <Widget>[
+        Spacer(),
+        IconButton(
+          icon: Icon(Icons.arrow_left),
+          onPressed: _page > 0 ? _loadBack : null,
+        ),
+        IconButton(
+          icon: Icon(Icons.arrow_right),
+          onPressed: _loadNext,
+        )
+      ],
+    );
   }
+
+  void _loadBack() => _load(--_page);
+
+  void _loadNext() => _load(++_page);
+
+  void _load(int page) {
+    context.bloc<PetPageBloc>().load(page);
+    setState(() {
+      _page = page;
+    });
+  }
+}
+
+void _showError(BuildContext context, DataError state) {
+  Scaffold.of(context).showSnackBar(
+    SnackBar(
+      content: Text(state.error),
+    ),
+  );
+}
+
+Widget _buildEmpty() {
+  return Center(
+    child: Text(
+      'No pets matching filter',
+    ),
+  );
+}
+
+Widget _buildLoading() {
+  return Center(
+    child: CircularProgressIndicator(),
+  );
+}
+
+Widget _buildLoaded(List<Pet> pets) {
+  return ListView(
+    children: [
+      ...pets.map((e) => Card(child: Text('$e'))),
+    ],
+  );
 }

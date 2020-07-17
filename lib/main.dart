@@ -32,6 +32,11 @@ List<BlocProviderSingleChildWidget> get _blocs {
         context.repository<PetDataRepository>(),
       ),
     ),
+    BlocProvider(
+      create: (context) => PetPageBloc(
+        context.repository<PetPagedRepository>(),
+      ),
+    ),
   ];
 }
 
