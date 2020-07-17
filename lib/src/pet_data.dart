@@ -4,28 +4,24 @@ import 'package:openapi/api.dart';
 import 'package:openapi/api/pet_api.dart';
 import 'package:openapi/model/pet.dart';
 
-enum Status {
+enum PetStatus {
   available,
   pending,
   sold,
 }
 
-class PetFilter {
-  final Status status;
-
-  PetFilter(this.status);
-
-  String toQuery() => describeEnum(status);
+class PetBloc extends ListBloc<Pet, PetStatus> {
+  PetBloc(PetDataRepository repository) : super(repository);
 }
 
-class PetDataRepository implements ListRepository<Pet, PetFilter> {
+class PetDataRepository implements ListRepository<Pet, PetStatus> {
   static final Openapi _openApi = Openapi();
   final PetApi _petApi = _openApi.getPetApi();
 
   @override
-  Future<List<Pet>> load({PetFilter filter}) {
+  Future<List<Pet>> load({PetStatus filter}) {
     return _petApi
-        .findPetsByStatus(filter.toQuery())
+        .findPetsByStatus(describeEnum(filter))
         .then((value) => value.data);
   }
 }

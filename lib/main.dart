@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:list_bloc/list_bloc.dart';
 import 'package:openapi/model/pet.dart';
 import 'package:wakelock/wakelock.dart';
 
-import 'src/pet_data_repository.dart';
+import 'src/pet_data.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,9 +20,9 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       home: MultiBlocProvider(
         providers: [
-          BlocProvider<ListBloc<Pet, PetFilter>>(
+          BlocProvider<PetBloc>(
             create: (BuildContext context) {
-              return ListBloc<Pet, PetFilter>(
+              return PetBloc(
                 PetDataRepository(),
               );
             },
@@ -50,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: BlocConsumer(
-        bloc: context.bloc<ListBloc<Pet, PetFilter>>(),
+        bloc: context.bloc<PetBloc>(),
         listener: (BuildContext context, state) {
           if (state is DataError) {
             _showError(context, state);
@@ -70,6 +71,23 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         },
       ),
+      floatingActionButton: _buildStatusDropdown(context),
+    );
+  }
+
+  DropdownButton<PetStatus> _buildStatusDropdown(BuildContext context) {
+    return DropdownButton(
+      iconSize: 60,
+      hint: Text('Click here'),
+      items: [
+        ...PetStatus.values.map(
+          (status) => DropdownMenuItem(
+            value: status,
+            child: Text(describeEnum(status)),
+          ),
+        ),
+      ],
+      onChanged: (PetStatus value) => context.bloc<PetBloc>().load(value),
     );
   }
 
