@@ -18,41 +18,37 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      home: MultiBlocProvider(
+      home: MultiRepositoryProvider(
         providers: [
-          BlocProvider<PetBloc>(
-            create: (BuildContext context) {
-              return PetBloc(
-                PetDataRepository(),
-              );
-            },
+          RepositoryProvider<PetDataRepository>(
+            create: (context) => PetDataRepository(),
           ),
         ],
-        child: MyHomePage(title: 'Flutter Demo Home Page'),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<PetBloc>(
+              create: (context) => PetBloc(
+                context.repository<PetDataRepository>(),
+              ),
+            ),
+          ],
+          child: MyHomePage(),
+        ),
       ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Pet Store'),
       ),
       body: BlocConsumer(
         bloc: context.bloc<PetBloc>(),
-        listener: (BuildContext context, state) {
+        listener: (context, state) {
           if (state is DataError) {
             _showError(context, state);
           }
@@ -72,22 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       floatingActionButton: _buildStatusDropdown(context),
-    );
-  }
-
-  DropdownButton<PetStatus> _buildStatusDropdown(BuildContext context) {
-    return DropdownButton(
-      iconSize: 60,
-      hint: Text('Click here'),
-      items: [
-        ...PetStatus.values.map(
-          (status) => DropdownMenuItem(
-            value: status,
-            child: Text(describeEnum(status)),
-          ),
-        ),
-      ],
-      onChanged: (PetStatus value) => context.bloc<PetBloc>().load(value),
     );
   }
 
@@ -115,9 +95,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildLoaded(List<Pet> pets) {
     return ListView(
-      children: <Widget>[
+      children: [
         ...pets.map((e) => Card(child: Text('$e'))),
       ],
+    );
+  }
+
+  Widget _buildStatusDropdown(BuildContext context) {
+    return DropdownButton(
+      iconSize: 60,
+      hint: Text('Click here'),
+      items: [
+        ...PetStatus.values.map(
+          (status) => DropdownMenuItem(
+            value: status,
+            child: Text(describeEnum(status)),
+          ),
+        ),
+      ],
+      onChanged: (value) => context.bloc<PetBloc>().load(value),
     );
   }
 }
