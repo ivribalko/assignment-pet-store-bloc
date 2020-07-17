@@ -18,7 +18,7 @@ void main() {
         providers: _repositories,
         child: MultiBlocProvider(
           providers: _blocs,
-          child: PetListScreen(),
+          child: PetScreen(),
         ),
       ),
     ),
