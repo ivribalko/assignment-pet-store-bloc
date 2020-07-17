@@ -48,7 +48,7 @@ class _PetScreenState extends State<PetScreen> {
           ),
         ),
       ],
-      onChanged: (value) => context.bloc<PetBloc>().load(value),
+      onChanged: (value) => context.bloc<PetListBloc>().load(value),
     );
   }
 
@@ -73,7 +73,7 @@ class PetListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer(
-      bloc: context.bloc<PetBloc>(),
+      bloc: context.bloc<PetListBloc>(),
       listener: (context, state) {
         if (state is DataError) {
           _showError(context, state);

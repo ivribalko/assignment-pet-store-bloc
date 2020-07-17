@@ -28,7 +28,7 @@ void main() {
 List<BlocProviderSingleChildWidget> get _blocs {
   return [
     BlocProvider(
-      create: (context) => PetBloc(
+      create: (context) => PetListBloc(
         context.repository<PetDataRepository>(),
       ),
     ),
