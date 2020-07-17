@@ -23,3 +23,18 @@ class PetDataRepository implements ListRepository<Pet, PetStatus> {
       .findPetsByStatus(describeEnum(filter))
       .then((value) => value.data);
 }
+
+class PetPagedRepository implements PaginatedRepository<Pet, PetStatus> {
+  final PetApi _petApi;
+
+  PetPagedRepository(openApi) : _petApi = openApi.getPetApi();
+
+  @override
+  Future<ListPage<Pet>> load({PetStatus filter}) => _petApi
+      .findPetsByStatus(describeEnum(filter))
+      .then((value) => value.data)
+      .then((value) => ListPage(
+            data: value,
+            count: value.length,
+          ));
+}
