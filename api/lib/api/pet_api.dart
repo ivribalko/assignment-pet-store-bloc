@@ -159,7 +159,7 @@ class PetApi {
   /// Finds Pets by tags
   ///
   /// Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
-  @deprecated
+  @deprecated // as per https://petstore.swagger.io/
   Future<Response<List<Pet>>> findPetsByTags(
     List<String> tags, {
     CancelToken cancelToken,
