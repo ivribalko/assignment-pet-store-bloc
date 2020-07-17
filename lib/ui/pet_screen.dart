@@ -17,6 +17,10 @@ class _PetScreenState extends State<PetScreen> {
     'list': PetListView(),
     'page': PetPageView(),
   };
+  static final _side = {
+    'list': StatusDropdown(),
+    'page': PagingSwitcher(),
+  };
 
   int _tab = 0;
 
@@ -27,28 +31,12 @@ class _PetScreenState extends State<PetScreen> {
         title: Text('Pet Screen'),
       ),
       body: _tabs[_keys[_tab]],
-      floatingActionButton: _buildStatusDropdown(context),
+      floatingActionButton: _side[_keys[_tab]],
       bottomNavigationBar: BottomNavigationBar(
         items: _buildNavigationItems(),
         onTap: _setTab,
         currentIndex: _tab,
       ),
-    );
-  }
-
-  Widget _buildStatusDropdown(BuildContext context) {
-    return DropdownButton(
-      iconSize: 60,
-      hint: Text('Click here'),
-      items: [
-        ...PetStatus.values.map(
-          (status) => DropdownMenuItem(
-            value: status,
-            child: Text(describeEnum(status)),
-          ),
-        ),
-      ],
-      onChanged: (value) => context.bloc<PetListBloc>().load(value),
     );
   }
 
@@ -133,5 +121,31 @@ class PetPageView extends StatelessWidget {
     return Center(
       child: Text('TODO'),
     );
+  }
+}
+
+class StatusDropdown extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton(
+      iconSize: 60,
+      hint: Text('Click here'),
+      items: [
+        ...PetStatus.values.map(
+          (status) => DropdownMenuItem(
+            value: status,
+            child: Text(describeEnum(status)),
+          ),
+        ),
+      ],
+      onChanged: (value) => context.bloc<PetListBloc>().load(value),
+    );
+  }
+}
+
+class PagingSwitcher extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
