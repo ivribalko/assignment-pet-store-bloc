@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/src/bloc_provider.dart';
+import 'package:flutter_bloc/src/repository_provider.dart';
 import 'package:openapi/api.dart';
 import 'package:wakelock/wakelock.dart';
 
@@ -13,32 +15,40 @@ void main() {
     MaterialApp(
       title: 'Pet Store',
       home: MultiRepositoryProvider(
-        providers: [
-          RepositoryProvider(
-            create: (context) => Openapi(),
-          ),
-          RepositoryProvider(
-            create: (context) => PetDataRepository(
-              context.repository<Openapi>(),
-            ),
-          ),
-          RepositoryProvider(
-            create: (context) => PetPagedRepository(
-              context.repository<Openapi>(),
-            ),
-          ),
-        ],
+        providers: _repositories,
         child: MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (context) => PetBloc(
-                context.repository<PetDataRepository>(),
-              ),
-            ),
-          ],
+          providers: _blocs,
           child: PetListScreen(),
         ),
       ),
     ),
   );
+}
+
+List<BlocProviderSingleChildWidget> get _blocs {
+  return [
+    BlocProvider(
+      create: (context) => PetBloc(
+        context.repository<PetDataRepository>(),
+      ),
+    ),
+  ];
+}
+
+List<RepositoryProviderSingleChildWidget> get _repositories {
+  return [
+    RepositoryProvider(
+      create: (context) => Openapi(),
+    ),
+    RepositoryProvider(
+      create: (context) => PetDataRepository(
+        context.repository<Openapi>(),
+      ),
+    ),
+    RepositoryProvider(
+      create: (context) => PetPagedRepository(
+        context.repository<Openapi>(),
+      ),
+    ),
+  ];
 }
