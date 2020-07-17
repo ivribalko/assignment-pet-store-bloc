@@ -5,8 +5,6 @@ version: 1.0.0+1
 environment:
   sdk: ">=2.7.0 <3.0.0"
 dependencies:
-  built_collection: ^4.3.2
-  dio: ^3.0.9
   flutter:
     sdk: flutter
   flutter_bloc: ^4.0.0
@@ -20,30 +18,3 @@ dev_dependencies:
   pedantic: ^1.9.0
 flutter:
   uses-material-design: true
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
