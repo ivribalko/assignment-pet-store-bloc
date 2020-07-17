@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:list_bloc/list_bloc.dart';
-import 'package:openapi/api.dart';
 import 'package:openapi/api/pet_api.dart';
 import 'package:openapi/model/pet.dart';
 
@@ -15,13 +14,12 @@ class PetBloc extends ListBloc<Pet, PetStatus> {
 }
 
 class PetDataRepository implements ListRepository<Pet, PetStatus> {
-  static final Openapi _openApi = Openapi();
-  final PetApi _petApi = _openApi.getPetApi();
+  final PetApi _petApi;
+
+  PetDataRepository(openApi) : _petApi = openApi.getPetApi();
 
   @override
-  Future<List<Pet>> load({PetStatus filter}) {
-    return _petApi
-        .findPetsByStatus(describeEnum(filter))
-        .then((value) => value.data);
-  }
+  Future<List<Pet>> load({PetStatus filter}) => _petApi
+      .findPetsByStatus(describeEnum(filter))
+      .then((value) => value.data);
 }

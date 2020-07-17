@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:openapi/api.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'src/pet_data.dart';
@@ -13,8 +14,13 @@ void main() {
       title: 'Flutter Demo',
       home: MultiRepositoryProvider(
         providers: [
+          RepositoryProvider<Openapi>(
+            create: (context) => Openapi(),
+          ),
           RepositoryProvider<PetDataRepository>(
-            create: (context) => PetDataRepository(),
+            create: (context) => PetDataRepository(
+              context.repository<Openapi>(),
+            ),
           ),
         ],
         child: MultiBlocProvider(
