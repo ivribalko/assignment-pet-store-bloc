@@ -60,27 +60,7 @@ class _PetScreenState extends State<PetScreen> {
 class PetListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer(
-      bloc: context.bloc<PetListBloc>(),
-      listener: (context, state) {
-        if (state is DataError) {
-          _showError(context, state);
-        }
-      },
-      builder: (_, state) {
-        if (state is DataEmpty) {
-          return _buildEmpty();
-        } else if (state is DataLoading) {
-          return _buildLoading();
-        } else if (state is DataLoaded) {
-          return _buildLoaded(state.data);
-        } else if (state is DataError) {
-          return _buildEmpty();
-        } else {
-          throw UnimplementedError();
-        }
-      },
-    );
+    return _buildBlocConsumer<PetListBloc>(context, (data) => data);
   }
 }
 
@@ -88,27 +68,7 @@ class PetListView extends StatelessWidget {
 class PetPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer(
-      bloc: context.bloc<PetPageBloc>(),
-      listener: (context, state) {
-        if (state is DataError) {
-          _showError(context, state);
-        }
-      },
-      builder: (_, state) {
-        if (state is DataEmpty) {
-          return _buildEmpty();
-        } else if (state is DataLoading) {
-          return _buildLoading();
-        } else if (state is DataLoaded) {
-          return _buildLoaded(state.data.data);
-        } else if (state is DataError) {
-          return _buildEmpty();
-        } else {
-          throw UnimplementedError();
-        }
-      },
-    );
+    return _buildBlocConsumer<PetPageBloc>(context, (data) => data.data);
   }
 }
 
@@ -201,5 +161,32 @@ Widget _buildLoaded(List<Pet> pets) {
     children: [
       ...pets.map((e) => Card(child: Text('$e'))),
     ],
+  );
+}
+
+Widget _buildBlocConsumer<B extends Bloc<dynamic, dynamic>>(
+  BuildContext context,
+  Function(dynamic) extractor,
+) {
+  return BlocConsumer(
+    bloc: context.bloc<B>(),
+    listener: (context, state) {
+      if (state is DataError) {
+        _showError(context, state);
+      }
+    },
+    builder: (_, state) {
+      if (state is DataEmpty) {
+        return _buildEmpty();
+      } else if (state is DataLoading) {
+        return _buildLoading();
+      } else if (state is DataLoaded) {
+        return _buildLoaded(extractor(state.data));
+      } else if (state is DataError) {
+        return _buildEmpty();
+      } else {
+        throw UnimplementedError();
+      }
+    },
   );
 }
