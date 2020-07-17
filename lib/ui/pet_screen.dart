@@ -5,12 +5,12 @@ import 'package:list_bloc/list_bloc.dart';
 import 'package:openapi/model/pet.dart';
 import 'package:pet_store_bloc/src/pet_data.dart';
 
-class PetScreen extends StatelessWidget {
+class PetListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pet Store'),
+        title: Text('Pet ListView'),
       ),
       body: BlocConsumer(
         bloc: context.bloc<PetBloc>(),

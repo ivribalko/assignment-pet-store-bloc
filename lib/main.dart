@@ -11,27 +11,32 @@ void main() {
   Wakelock.enable();
   runApp(
     MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Pet Store',
       home: MultiRepositoryProvider(
         providers: [
-          RepositoryProvider<Openapi>(
+          RepositoryProvider(
             create: (context) => Openapi(),
           ),
-          RepositoryProvider<PetDataRepository>(
+          RepositoryProvider(
             create: (context) => PetDataRepository(
+              context.repository<Openapi>(),
+            ),
+          ),
+          RepositoryProvider(
+            create: (context) => PetPagedRepository(
               context.repository<Openapi>(),
             ),
           ),
         ],
         child: MultiBlocProvider(
           providers: [
-            BlocProvider<PetBloc>(
+            BlocProvider(
               create: (context) => PetBloc(
                 context.repository<PetDataRepository>(),
               ),
             ),
           ],
-          child: PetScreen(),
+          child: PetListScreen(),
         ),
       ),
     ),
