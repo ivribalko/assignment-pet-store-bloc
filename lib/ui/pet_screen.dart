@@ -12,15 +12,16 @@ class PetScreen extends StatefulWidget {
 }
 
 class _PetScreenState extends State<PetScreen> {
-  static final _keys = _tabs.keys.toList();
-  static final _tabs = {
-    'list': BlocBody<PetListBloc>((data) => data),
-    'page': BlocBody<PetPageBloc>((data) => data.data),
-  };
-  static final _side = {
-    'list': StatusDropdown(),
-    'page': PagingSwitcher(),
-  };
+  final _tabs = [
+    _Tab(
+        name: 'list',
+        body: BlocBody<PetListBloc>((data) => data),
+        side: StatusDropdown()),
+    _Tab(
+        name: 'page',
+        body: BlocBody<PetPageBloc>((data) => data.data),
+        side: PagingSwitcher()),
+  ];
 
   int _tab = 0;
 
@@ -30,8 +31,8 @@ class _PetScreenState extends State<PetScreen> {
       appBar: AppBar(
         title: Text('Pet Screen'),
       ),
-      body: _tabs[_keys[_tab]],
-      floatingActionButton: _side[_keys[_tab]],
+      body: _tabs[_tab].body,
+      floatingActionButton: _tabs[_tab].side,
       bottomNavigationBar: BottomNavigationBar(
         items: _buildNavigationItems(),
         onTap: _setTab,
@@ -41,7 +42,8 @@ class _PetScreenState extends State<PetScreen> {
   }
 
   List<BottomNavigationBarItem> _buildNavigationItems() {
-    return _keys
+    return _tabs
+        .map((e) => e.name)
         .map((e) => BottomNavigationBarItem(
             icon: Icon(Icons.star_border),
             title: Text(e),
@@ -119,6 +121,14 @@ class _PagingSwitcherState extends State<PagingSwitcher> {
   }
 
   void _load(int page) => context.bloc<PetPageBloc>().load(page);
+}
+
+class _Tab {
+  final String name;
+  final Widget body;
+  final Widget side;
+
+  _Tab({this.name, this.body, this.side});
 }
 
 class BlocBody<B extends Bloc<dynamic, dynamic>> extends StatelessWidget {
