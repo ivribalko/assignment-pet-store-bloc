@@ -14,8 +14,8 @@ class PetScreen extends StatefulWidget {
 class _PetScreenState extends State<PetScreen> {
   static final _keys = _tabs.keys.toList();
   static final _tabs = {
-    'list': PetListView(),
-    'page': PetPageView(),
+    'list': BlocBody<PetListBloc>((data) => data),
+    'page': BlocBody<PetPageBloc>((data) => data.data),
   };
   static final _side = {
     'list': StatusDropdown(),
@@ -53,22 +53,6 @@ class _PetScreenState extends State<PetScreen> {
     setState(() {
       _tab = index;
     });
-  }
-}
-
-/// View for ListRepository.
-class PetListView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return _buildBlocConsumer<PetListBloc>(context, (data) => data);
-  }
-}
-
-/// View for PaginatedRepository.
-class PetPageView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return _buildBlocConsumer<PetPageBloc>(context, (data) => data.data);
   }
 }
 
@@ -117,18 +101,18 @@ class _PagingSwitcherState extends State<PagingSwitcher> {
     );
   }
 
-  Row _buildPaging(int number, int pages) {
+  Row _buildPaging(int index, int count) {
     return Row(
       children: <Widget>[
         Spacer(),
         IconButton(
           icon: Icon(Icons.arrow_left),
-          onPressed: number > 0 ? () => _load(--number) : null,
+          onPressed: index > 0 ? () => _load(--index) : null,
         ),
         Text('Click here'),
         IconButton(
           icon: Icon(Icons.arrow_right),
-          onPressed: number < pages - 2 ? () => _load(++number) : null,
+          onPressed: index < count - 2 ? () => _load(++index) : null,
         )
       ],
     );
@@ -137,59 +121,63 @@ class _PagingSwitcherState extends State<PagingSwitcher> {
   void _load(int page) => context.bloc<PetPageBloc>().load(page);
 }
 
-void _showError(BuildContext context, DataError state) {
-  Scaffold.of(context).showSnackBar(
-    SnackBar(
-      content: Text(state.error),
-    ),
-  );
-}
+class BlocBody<B extends Bloc<dynamic, dynamic>> extends StatelessWidget {
+  final Function(dynamic) _extractor;
 
-Widget _buildEmpty() {
-  return Center(
-    child: Text(
-      'No pets matching filter',
-    ),
-  );
-}
+  const BlocBody(this._extractor);
 
-Widget _buildLoading() {
-  return Center(
-    child: CircularProgressIndicator(),
-  );
-}
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer(
+      bloc: context.bloc<B>(),
+      listener: (context, state) {
+        if (state is DataError) {
+          _showError(context, state);
+        }
+      },
+      builder: (_, state) {
+        if (state is DataEmpty) {
+          return _buildEmpty();
+        } else if (state is DataLoading) {
+          return _buildLoading();
+        } else if (state is DataLoaded) {
+          return _buildLoaded(_extractor(state.data));
+        } else if (state is DataError) {
+          return _buildEmpty();
+        } else {
+          throw UnimplementedError();
+        }
+      },
+    );
+  }
 
-Widget _buildLoaded(List<Pet> pets) {
-  return ListView(
-    children: [
-      ...pets.map((e) => Card(child: Text('$e'))),
-    ],
-  );
-}
+  void _showError(BuildContext context, DataError state) {
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(state.error),
+      ),
+    );
+  }
 
-Widget _buildBlocConsumer<B extends Bloc<dynamic, dynamic>>(
-  BuildContext context,
-  Function(dynamic) extractor,
-) {
-  return BlocConsumer(
-    bloc: context.bloc<B>(),
-    listener: (context, state) {
-      if (state is DataError) {
-        _showError(context, state);
-      }
-    },
-    builder: (_, state) {
-      if (state is DataEmpty) {
-        return _buildEmpty();
-      } else if (state is DataLoading) {
-        return _buildLoading();
-      } else if (state is DataLoaded) {
-        return _buildLoaded(extractor(state.data));
-      } else if (state is DataError) {
-        return _buildEmpty();
-      } else {
-        throw UnimplementedError();
-      }
-    },
-  );
+  Widget _buildEmpty() {
+    return Center(
+      child: Text(
+        'No pets matching filter',
+      ),
+    );
+  }
+
+  Widget _buildLoading() {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildLoaded(List<Pet> pets) {
+    return ListView(
+      children: [
+        ...pets.map((e) => Card(child: Text('$e'))),
+      ],
+    );
+  }
 }
